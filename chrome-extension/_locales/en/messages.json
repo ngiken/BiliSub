@@ -1,0 +1,95 @@
+{
+  "extensionName": {
+    "message": "BiliSub"
+  },
+  "extensionDescription": {
+    "message": "Download Bilibili CC subtitles as TXT or SRT."
+  },
+  "headerSubtitle": {
+    "message": "Bilibili CC subtitle exporter"
+  },
+  "loading": {
+    "message": "Reading the current video..."
+  },
+  "notBili": {
+    "message": "Open a bilibili.com video page before using BiliSub."
+  },
+  "unknownTitle": {
+    "message": "Untitled video"
+  },
+  "unknownDuration": {
+    "message": "--:--"
+  },
+  "fetchButton": {
+    "message": "Extract subtitles"
+  },
+  "progressStart": {
+    "message": "Preparing subtitle extraction"
+  },
+  "progressVideo": {
+    "message": "Reading video information"
+  },
+  "progressTracks": {
+    "message": "Fetching subtitle tracks"
+  },
+  "progressDone": {
+    "message": "Subtitles are ready"
+  },
+  "videoInfoDone": {
+    "message": "Video information loaded"
+  },
+  "tracksFound": {
+    "message": "Found $COUNT$ subtitle tracks",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "subtitleCount": {
+    "message": "$COUNT$ subtitles",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "noSubtitle": {
+    "message": "This video has no downloadable CC subtitles yet. Check whether subtitles are visible on the page, or sign in to Bilibili and try again."
+  },
+  "loginRequired": {
+    "message": "This video's subtitles require a Bilibili sign-in. Sign in with the current browser and try again."
+  },
+  "errorPrefix": {
+    "message": "Failed: "
+  },
+  "downloaded": {
+    "message": "Saved"
+  },
+  "previewLabel": {
+    "message": "Subtitle preview"
+  },
+  "backButton": {
+    "message": "Back"
+  },
+  "footerFormats": {
+    "message": "TXT / SRT"
+  },
+  "currentPageNotVideo": {
+    "message": "The current page is not a Bilibili video page."
+  },
+  "backgroundNoResponse": {
+    "message": "The extension background did not return a result. Reopen the extension and try again."
+  },
+  "subtitleApiFailed": {
+    "message": "The subtitle API request failed."
+  },
+  "subtitleFileFailed": {
+    "message": "Subtitle file download failed: HTTP $STATUS$",
+    "placeholders": {
+      "status": {
+        "content": "$1"
+      }
+    }
+  }
+}

@@ -1,5 +1,7 @@
 # BiliSub
 
+[中文](README.zh-CN.md) | English
+
 BiliSub is a Chrome extension for exporting Bilibili CC subtitles as `TXT` or `SRT` files.
 
 ![BiliSub preview](assets/github-preview.png)

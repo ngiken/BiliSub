@@ -3,20 +3,32 @@ const appState = {
   subtitles: null,
 };
 
-const TEXT = Object.freeze({
-  loading: '正在读取当前视频...',
-  notBili: '请打开 bilibili.com 的视频页面后再使用 BiliSub。',
-  unknownTitle: '未命名视频',
+const FALLBACK_TEXT = Object.freeze({
+  extensionName: 'BiliSub',
+  headerSubtitle: 'Bilibili CC subtitle exporter',
+  loading: 'Reading the current video...',
+  notBili: 'Open a bilibili.com video page before using BiliSub.',
+  unknownTitle: 'Untitled video',
   unknownDuration: '--:--',
-  ready: '提取字幕',
-  progressStart: '正在准备字幕提取',
-  progressVideo: '正在读取视频信息',
-  progressTracks: '正在获取字幕列表',
-  progressDone: '字幕准备完成',
-  noSubtitle: '这个视频暂时没有可下载的 CC 字幕。可以确认视频页面是否已经显示字幕，或登录 Bilibili 后重试。',
-  loginRequired: '这个视频的字幕需要登录 Bilibili 后才能读取。请在当前浏览器登录后重试。',
-  errorPrefix: '处理失败：',
-  downloaded: '已保存',
+  fetchButton: 'Extract subtitles',
+  progressStart: 'Preparing subtitle extraction',
+  progressVideo: 'Reading video information',
+  progressTracks: 'Fetching subtitle tracks',
+  progressDone: 'Subtitles are ready',
+  videoInfoDone: 'Video information loaded',
+  tracksFound: 'Found {count} subtitle tracks',
+  subtitleCount: '{count} subtitles',
+  noSubtitle: 'This video has no downloadable CC subtitles yet. Check whether subtitles are visible on the page, or sign in to Bilibili and try again.',
+  loginRequired: "This video's subtitles require a Bilibili sign-in. Sign in with the current browser and try again.",
+  errorPrefix: 'Failed: ',
+  downloaded: 'Saved',
+  previewLabel: 'Subtitle preview',
+  backButton: 'Back',
+  footerFormats: 'TXT / SRT',
+  currentPageNotVideo: 'The current page is not a Bilibili video page.',
+  backgroundNoResponse: 'The extension background did not return a result. Reopen the extension and try again.',
+  subtitleApiFailed: 'The subtitle API request failed.',
+  subtitleFileFailed: 'Subtitle file download failed: HTTP {status}',
 });
 
 const STATE_IDS = Object.freeze({
@@ -30,6 +42,7 @@ const STATE_IDS = Object.freeze({
 });
 
 document.addEventListener('DOMContentLoaded', async () => {
+  applyStaticText();
   document.getElementById('fetchBtn')?.addEventListener('click', fetchSubtitles);
   document.querySelectorAll('.btn-back').forEach((button) => {
     button.addEventListener('click', () => showState('ready'));
@@ -50,7 +63,7 @@ if (typeof chrome !== 'undefined' && chrome.tabs) {
 
 async function initActiveTab() {
   showState('loading');
-  setText('loadingText', TEXT.loading);
+  setText('loadingText', t('loading'));
   appState.video = null;
   appState.subtitles = null;
 
@@ -97,10 +110,10 @@ async function getVideoInfoFromTab(tab) {
   }
 
   const match = tab.url.match(/BV[0-9A-Za-z]{10}/);
-  if (!match) throw new Error('当前页面不是 Bilibili 视频页。');
+  if (!match) throw new Error(t('currentPageNotVideo'));
   return {
     bvid: match[0],
-    title: cleanTitle(tab.title) || TEXT.unknownTitle,
+    title: cleanTitle(tab.title) || t('unknownTitle'),
     aid: null,
     cid: null,
     pages: [],
@@ -127,7 +140,7 @@ async function hydrateVideoDetail(bvid) {
 }
 
 function populateVideoCard(info) {
-  setText('videoTitle', info.title || TEXT.unknownTitle);
+  setText('videoTitle', info.title || t('unknownTitle'));
   setText('bvidTag', info.bvid || 'BV...');
   setText('durationTag', formatDuration(info.pages?.[0]?.duration));
 }
@@ -136,19 +149,19 @@ async function fetchSubtitles() {
   if (!appState.video) return;
 
   showState('extracting');
-  updateProgress(5, TEXT.progressStart);
-  setStep(1, TEXT.progressVideo, 'active');
-  setStep(2, TEXT.progressTracks);
-  setStep(3, TEXT.progressDone);
+  updateProgress(5, t('progressStart'));
+  setStep(1, t('progressVideo'), 'active');
+  setStep(2, t('progressTracks'));
+  setStep(3, t('progressDone'));
 
   try {
     const tab = await getActiveTab();
     const stored = await getStoredSubtitles(appState.video.bvid, appState.video.cid);
     let subtitleData = null;
 
-    updateProgress(25, TEXT.progressVideo);
+    updateProgress(25, t('progressVideo'));
     setStep(1, '视频信息已读取', 'done');
-    setStep(2, TEXT.progressTracks, 'active');
+    setStep(2, t('progressTracks'), 'active');
 
     if (stored?.subtitles?.length) {
       subtitleData = await buildTracksFromStoredHint(stored);
@@ -164,13 +177,13 @@ async function fetchSubtitles() {
       return;
     }
 
-    updateProgress(85, `找到 ${subtitleData.tracks.length} 条字幕轨道`);
-    setStep(2, `找到 ${subtitleData.tracks.length} 条字幕轨道`, 'done');
-    setStep(3, TEXT.progressDone, 'active');
+    updateProgress(85, t('tracksFound', [subtitleData.tracks.length]));
+    setStep(2, t('tracksFound', [subtitleData.tracks.length]), 'done');
+    setStep(3, t('progressDone'), 'active');
 
     renderResults(subtitleData.tracks);
-    updateProgress(100, TEXT.progressDone);
-    setStep(3, TEXT.progressDone, 'done');
+    updateProgress(100, t('progressDone'));
+    setStep(3, t('progressDone'), 'done');
 
     await wait(250);
     showState('results');
@@ -189,8 +202,8 @@ async function requestSubtitlesFromBackground(tabId, stored) {
     tabId: tabId || null,
   });
 
-  if (!response) throw new Error('扩展后台没有返回结果，请重新打开扩展后再试。');
-  if (!response.success) throw new Error(response.error || '字幕接口返回失败。');
+  if (!response) throw new Error(t('backgroundNoResponse'));
+  if (!response.success) throw new Error(response.error || t('subtitleApiFailed'));
   return response.data;
 }
 
@@ -230,13 +243,13 @@ async function getStoredSubtitles(bvid, cid) {
 async function downloadSubtitleJson(url) {
   const normalizedUrl = url?.startsWith('//') ? `https:${url}` : url;
   const response = await fetch(normalizedUrl, { credentials: 'include' });
-  if (!response.ok) throw new Error(`字幕文件下载失败：HTTP ${response.status}`);
+  if (!response.ok) throw new Error(t('subtitleFileFailed', [response.status]));
   const data = await response.json();
   return data.body || [];
 }
 
 function renderResults(tracks) {
-  setText('videoTitle2', appState.video.title || TEXT.unknownTitle);
+  setText('videoTitle2', appState.video.title || t('unknownTitle'));
   setText('bvidTag2', appState.video.bvid || 'BV...');
   renderTracks(tracks);
   showPreview(tracks[0]);
@@ -257,7 +270,7 @@ function renderTracks(tracks) {
     name.textContent = track.lanDoc || track.lan || 'Subtitle';
     const count = document.createElement('div');
     count.className = 'track-count';
-    count.textContent = `${track.entries.length} 条字幕`;
+    count.textContent = t('subtitleCount', [track.entries.length]);
     meta.append(name, count);
 
     const buttons = document.createElement('div');
@@ -341,14 +354,14 @@ function showPreview(track) {
 }
 
 function showNoSubtitle(data) {
-  setText('videoTitle3', appState.video?.title || TEXT.unknownTitle);
-  setText('noSubHint', data?.needLogin ? TEXT.loginRequired : TEXT.noSubtitle);
+  setText('videoTitle3', appState.video?.title || t('unknownTitle'));
+  setText('noSubHint', data?.needLogin ? t('loginRequired') : t('noSubtitle'));
   showState('nosub');
 }
 
 function showError(error) {
   showState('error');
-  setText('errorMsg', `${TEXT.errorPrefix}${error.message || String(error)}`);
+  setText('errorMsg', `${t('errorPrefix')}${error.message || String(error)}`);
 }
 
 function showState(state) {
@@ -380,7 +393,7 @@ function updateProgress(percent, text) {
 
 function flashButton(button) {
   const originalText = button.textContent;
-  button.textContent = TEXT.downloaded;
+  button.textContent = t('downloaded');
   button.classList.add('downloaded');
   setTimeout(() => {
     button.textContent = originalText;
@@ -389,14 +402,14 @@ function flashButton(button) {
 }
 
 function formatDuration(seconds) {
-  if (!seconds) return TEXT.unknownDuration;
+  if (!seconds) return t('unknownDuration');
   const minutes = Math.floor(seconds / 60);
   const secs = seconds % 60;
   return `${minutes}:${pad(secs, 2)}`;
 }
 
 function cleanTitle(title) {
-  return (title || '').replace(/\s*-\s*哔哩哔哩.*$/, '').trim();
+  return (title || '').replace(/\s*-\s*bilibili.*$/i, '').replace(/\s*-\s*\u54d4\u54e9\u54d4\u54e9.*$/i, '').trim();
 }
 
 function safeFilename(name) {
@@ -410,6 +423,51 @@ function pad(value, length) {
 function setText(id, text) {
   const element = document.getElementById(id);
   if (element) element.textContent = text;
+}
+
+
+function applyStaticText() {
+  const uiLanguage = typeof chrome !== 'undefined' && chrome.i18n?.getUILanguage
+    ? chrome.i18n.getUILanguage()
+    : 'en';
+  document.documentElement.lang = uiLanguage.startsWith('zh') ? 'zh-CN' : 'en';
+  setText('headerTitle', t('extensionName'));
+  setText('headerSubtitle', t('headerSubtitle'));
+  setText('notBiliText', t('notBili'));
+  setText('loadingText', t('loading'));
+  setText('videoTitle', t('unknownTitle'));
+  setText('durationTag', t('unknownDuration'));
+  setText('fetchBtn', t('fetchButton'));
+  setText('progressInfo', `${t('progressStart')} (0%)`);
+  setText('step1', t('progressVideo'));
+  setText('step2', t('progressTracks'));
+  setText('step3', t('progressDone'));
+  setText('videoTitle2', t('unknownTitle'));
+  setText('previewLabel', t('previewLabel'));
+  setText('videoTitle3', t('unknownTitle'));
+  setText('noSubHint', t('noSubtitle'));
+  setText('errorMsg', t('errorPrefix'));
+  document.querySelectorAll('.btn-back').forEach((button) => {
+    button.textContent = t('backButton');
+  });
+  setText('footerVersion', `${t('extensionName')} v1.0.0`);
+  setText('footerFormats', t('footerFormats'));
+}
+
+function t(key, substitutions = []) {
+  if (typeof chrome !== 'undefined' && chrome.i18n?.getMessage) {
+    const message = chrome.i18n.getMessage(key, substitutions.map(String));
+    if (message) return message;
+  }
+
+  let text = FALLBACK_TEXT[key] || key;
+  substitutions.forEach((value, index) => {
+    text = text
+      .replace(`{${index}}`, value)
+      .replace('{count}', value)
+      .replace('{status}', value);
+  });
+  return text;
 }
 
 function wait(ms) {

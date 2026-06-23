@@ -1,0 +1,95 @@
+{
+  "extensionName": {
+    "message": "BiliSub"
+  },
+  "extensionDescription": {
+    "message": "下载 Bilibili CC 字幕，支持 TXT 和 SRT 格式。"
+  },
+  "headerSubtitle": {
+    "message": "Bilibili CC 字幕导出工具"
+  },
+  "loading": {
+    "message": "正在读取当前视频..."
+  },
+  "notBili": {
+    "message": "请打开 bilibili.com 的视频页面后再使用 BiliSub。"
+  },
+  "unknownTitle": {
+    "message": "未命名视频"
+  },
+  "unknownDuration": {
+    "message": "--:--"
+  },
+  "fetchButton": {
+    "message": "提取字幕"
+  },
+  "progressStart": {
+    "message": "正在准备字幕提取"
+  },
+  "progressVideo": {
+    "message": "正在读取视频信息"
+  },
+  "progressTracks": {
+    "message": "正在获取字幕列表"
+  },
+  "progressDone": {
+    "message": "字幕准备完成"
+  },
+  "videoInfoDone": {
+    "message": "视频信息已读取"
+  },
+  "tracksFound": {
+    "message": "找到 $COUNT$ 条字幕轨道",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "subtitleCount": {
+    "message": "$COUNT$ 条字幕",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "noSubtitle": {
+    "message": "这个视频暂时没有可下载的 CC 字幕。可以确认视频页面是否已经显示字幕，或登录 Bilibili 后重试。"
+  },
+  "loginRequired": {
+    "message": "这个视频的字幕需要登录 Bilibili 后才能读取。请在当前浏览器登录后重试。"
+  },
+  "errorPrefix": {
+    "message": "处理失败："
+  },
+  "downloaded": {
+    "message": "已保存"
+  },
+  "previewLabel": {
+    "message": "字幕预览"
+  },
+  "backButton": {
+    "message": "返回"
+  },
+  "footerFormats": {
+    "message": "TXT / SRT"
+  },
+  "currentPageNotVideo": {
+    "message": "当前页面不是 Bilibili 视频页。"
+  },
+  "backgroundNoResponse": {
+    "message": "扩展后台没有返回结果，请重新打开扩展后再试。"
+  },
+  "subtitleApiFailed": {
+    "message": "字幕接口返回失败。"
+  },
+  "subtitleFileFailed": {
+    "message": "字幕文件下载失败：HTTP $STATUS$",
+    "placeholders": {
+      "status": {
+        "content": "$1"
+      }
+    }
+  }
+}

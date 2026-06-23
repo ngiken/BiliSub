@@ -2,7 +2,15 @@
 
 BiliSub is a Chrome extension for exporting Bilibili CC subtitles as `TXT` or `SRT` files.
 
-![BiliSub promo](chrome_store_promo.png)
+![BiliSub preview](assets/github-preview.png)
+
+## Demo
+
+![BiliSub popup demo](assets/popup-demo.png)
+
+![BiliSub usage demo](assets/use-demo.gif)
+
+Full usage video: [UseDemo.mp4](UseDemo.mp4)
 
 ## Features
 
